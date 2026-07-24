@@ -1,8 +1,8 @@
-# ExtremeTech Viewer (demo)
+# ExtremeTech Viewer
 
-Landing web para explorar el catálogo de ExtremeTech y el **histórico de precios** que
-recolecta el [tracker](../extremetech-tracker). Lee la base de datos SQLite del tracker
-(una copia vive en `data/extremetech.db`).
+Web para explorar el catálogo de ExtremeTech y el **histórico de precios** que recolecta el
+[tracker](../extremetech-tracker). Frontend estático + API serverless en **Vercel**, datos en
+**Supabase (Postgres)** e imágenes servidas desde **Cloudflare R2**.
 
 ![demo](docs/preview.png)
 
@@ -14,56 +14,68 @@ recolecta el [tracker](../extremetech-tracker). Lee la base de datos SQLite del 
 - **Orden**: nombre, precio ↑/↓, mayor descuento.
 - **Vista de detalle** por producto con:
   - **Gráfica de histórico de precio** (SVG propia, interactiva, sin dependencias).
-  - **Estadísticas**: precio actual, **más bajo** y cuándo, **más alto** y cuándo, promedio.
+  - **Estadísticas**: precio actual, **más bajo** y cuándo, **más alto** y cuándo.
   - Categorías, SKU y enlace a la tienda oficial.
 
-## Cómo correr
+## Arquitectura
+
+```
+Vercel CDN  ──  public/            (frontend estático: HTML/CSS/JS vanilla)
+Vercel Fn   ──  api/index.js       (app Express → /api/*, cacheada 1h en el CDN)
+                  └─ lib/queries.js  (postgres.js → Supabase, Transaction Pooler)
+Supabase    ──  products, price_history, latest_price, product_categories
+Cloudflare R2 ─ imágenes públicas  (products/{id}.ext, thumbs/{id}.ext)
+```
+
+Los datos y las imágenes los **empuja el scraper** ([extremetech-tracker](../extremetech-tracker))
+al final de cada corrida — este repo solo lee.
+
+## Variables de entorno
+
+Copiar `.env.example` a `.env` (local) y configurarlas también en Vercel (production + preview):
+
+| Variable | Descripción |
+|---|---|
+| `SUPABASE_DB_URL` | Connection string del **Transaction Pooler** de Supabase (puerto 6543) |
+| `R2_PUBLIC_BASE` | Base pública del bucket R2 (ej. `https://pub-xxxx.r2.dev`), sin slash final |
+
+## Desarrollo local
 
 ```bash
 npm install
-npm start          # http://localhost:4000
-# opcional: PORT=8080 npm start
+npm start          # http://localhost:4000 (lee .env si existe)
 ```
 
-La DB se lee de `data/extremetech.db`. Para usar una más fresca, copia la del tracker:
+## Deploy en Vercel
 
 ```bash
-cp ../extremetech-tracker/data/extremetech.db data/extremetech.db
+vercel link
+vercel env add SUPABASE_DB_URL      # pooler 6543
+vercel env add R2_PUBLIC_BASE
+vercel                              # preview
+vercel --prod
 ```
 
-## Imágenes (proxy bajo demanda)
-
-Las imágenes de ExtremeTech están **detrás de Cloudflare** (403 a peticiones directas) y su
-cookie es `SameSite=Lax`, así que **no se pueden hotlinkear** desde otro origen — por eso en
-la DB guardamos solo los **enlaces**, no los archivos.
-
-Para mostrarlas sin descargar todo el catálogo, el servidor expone `GET /img?u=<url>` que:
-
-1. Trae la imagen a través del **Chrome real** (por CDP en `127.0.0.1:9222`, el mismo que
-   usa el tracker y que ya pasó Cloudflare).
-2. La **cachea en memoria** (LRU, sin tocar disco → no gasta espacio).
-
-Solo se descargan las imágenes que realmente ves. **Requiere que ese Chrome esté corriendo**
-(lo levanta el tracker con `npm run scrape`, o lánzalo tú con el puerto `--remote-debugging-port=9222`).
-Si no está disponible, la web funciona igual pero muestra un placeholder en lugar de la imagen.
-
-> `CDP_URL` permite apuntar a otro endpoint (por defecto `http://127.0.0.1:9222`).
-
-## Nota sobre el histórico
-
-Ahora mismo cada producto tiene 1 punto de precio (recién empezamos a recolectar). La gráfica
-y las estadísticas se irán enriqueciendo conforme el tracker corra a diario y detecte cambios
-(guarda un punto nuevo solo cuando el precio o el stock cambian).
+La API responde con `Cache-Control: s-maxage=3600, stale-while-revalidate=86400`: como los
+datos cambian 2 veces al día (cron del scraper), el CDN de Vercel sirve casi todo y las
+funciones apenas se invocan.
 
 ## Estructura
 
 ```
-server.js        # Express: API (/api/products, /api/categories, /api/products/:id) + /img
-imgproxy.js      # proxy de imágenes vía CDP con caché en memoria
+api/index.js     # entrypoint de Vercel (exporta la app Express)
+server.js        # entrypoint de desarrollo local (app.listen)
+lib/
+├── db.js        # cliente postgres.js (prepare:false para el pooler; numeric/int8 → Number)
+├── queries.js   # queries a Supabase + armado del árbol de categorías
+└── app.js       # rutas Express: /api/categories(/tree), /api/recent, /api/products(/:id)
 public/
 ├── index.html   # estructura
 ├── styles.css   # tema oscuro estilo tienda tech
 └── app.js       # lógica: grid, búsqueda, filtros, detalle + gráfica SVG
-data/
-└── extremetech.db  # copia de la DB del tracker
 ```
+
+## Nota sobre el histórico
+
+La gráfica y las estadísticas se enriquecen conforme el tracker corre a diario y detecta
+cambios (guarda un punto nuevo solo cuando el precio o el stock cambian).
