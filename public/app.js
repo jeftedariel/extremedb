@@ -1,9 +1,8 @@
 const state = {
-  view: "all", // "all" | "recent"
   search: "",
   category: "", // slug de la categoría seleccionada
   categoryName: "",
-  sort: "name",
+  sort: "updated",
   page: 1,
   pages: 1,
   total: 0,
@@ -58,16 +57,10 @@ function renderCategories() {
   const ul = $("#categories");
   ul.innerHTML = "";
 
-  // Accesos especiales: todas + actualizados recientemente.
+  // Acceso especial: todas las categorías.
   const all = el("li");
-  all.appendChild(catRow("Todas", null, state.view === "all" && !state.category, () => selectCategory("", "")));
+  all.appendChild(catRow("Todas", null, !state.category, () => selectCategory("", "")));
   ul.appendChild(all);
-
-  const recent = el("li");
-  recent.appendChild(
-    catRow("🕒 Actualizados recientemente", null, state.view === "recent", showRecent)
-  );
-  ul.appendChild(recent);
 
   for (const node of state.tree) ul.appendChild(renderCatNode(node, 0));
 }
@@ -100,7 +93,7 @@ function renderCatNode(node, depth) {
     catRow(
       node.name,
       node.count,
-      state.view === "all" && state.category === node.slug,
+      state.category === node.slug,
       () => {
         if (hasKids) state.expanded.add(node.slug);
         selectCategory(node.slug, node.name);
@@ -129,16 +122,6 @@ async function loadProducts() {
   const grid = $("#grid");
   grid.innerHTML = `<div class="loading">Cargando…</div>`;
 
-  if (state.view === "recent") {
-    const data = await fetch("/api/recent?limit=50").then((r) => r.json());
-    state.total = data.items.length;
-    state.pages = 1;
-    renderResultbar();
-    renderGrid(data.items, { showUpdated: true });
-    renderPager();
-    return;
-  }
-
   const params = new URLSearchParams({
     search: state.search,
     category: state.category,
@@ -150,17 +133,13 @@ async function loadProducts() {
   state.pages = data.pages;
   state.total = data.total;
   renderResultbar();
-  renderGrid(data.items);
+  renderGrid(data.items, { showUpdated: state.sort === "updated" });
   renderPager();
 }
 
 /* ---------- render list ---------- */
 function renderResultbar() {
   const bar = $("#resultbar");
-  if (state.view === "recent") {
-    bar.innerHTML = `<span class="section-title">🕒 Actualizados recientemente</span><span>últimos ${state.total} productos con precio actualizado</span>`;
-    return;
-  }
   bar.innerHTML = `<span>${state.total.toLocaleString("es-CR")} productos</span>`;
   if (state.category) {
     const chip = el("span", "chip", `${esc(state.categoryName || state.category)} <button title="quitar">✕</button>`);
@@ -236,7 +215,6 @@ function renderPager() {
 
 /* ---------- interactions ---------- */
 function selectCategory(slug, name) {
-  state.view = "all";
   state.category = slug;
   state.categoryName = name;
   state.page = 1;
@@ -247,33 +225,18 @@ function selectCategory(slug, name) {
   loadProducts();
 }
 
-function showRecent() {
-  state.view = "recent";
-  state.page = 1;
-  renderCategories();
-  loadProducts();
-}
-
 let searchTimer;
 $("#search").addEventListener("input", (e) => {
   clearTimeout(searchTimer);
   searchTimer = setTimeout(() => {
     state.search = e.target.value.trim();
     state.page = 1;
-    if (state.view === "recent") {
-      state.view = "all";
-      renderCategories();
-    }
     loadProducts();
   }, 250);
 });
 $("#sort").addEventListener("change", (e) => {
   state.sort = e.target.value;
   state.page = 1;
-  if (state.view === "recent") {
-    state.view = "all";
-    renderCategories();
-  }
   loadProducts();
 });
 
