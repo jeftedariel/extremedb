@@ -35,7 +35,7 @@ export default function SearchBox() {
   };
 
   return (
-    <div className="flex-1">
+    <div className="order-3 w-full md:order-2 md:w-auto md:flex-1">
       <input
         ref={inputRef}
         type="search"

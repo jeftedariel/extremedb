@@ -31,7 +31,7 @@ export default function SortSelect() {
     <select
       value={searchParams.get("sort") ?? "updated"}
       onChange={(e) => onChange(e.target.value)}
-      className="cursor-pointer rounded-full border-none bg-white px-3 py-[10px] text-[13px] font-semibold text-[#444] outline-none ring-1 ring-[#eee]"
+      className="order-4 w-full cursor-pointer rounded-full border-none bg-white px-3 py-[10px] text-[13px] font-semibold text-[#444] outline-none ring-1 ring-[#eee] md:order-3 md:w-auto"
     >
       {OPTIONS.map((o) => (
         <option key={o.value} value={o.value}>
