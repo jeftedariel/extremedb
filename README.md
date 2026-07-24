@@ -16,10 +16,12 @@ periódicamente, esta web únicamente expone la información recopilada.
 ## Cómo funciona
 
 ```
-Vercel CDN   →  public/          frontend
-Vercel Fn    →  api/index.js     API Express serverless
-Supabase     →  Postgres         Base de datos
-Cloudflare R2 → imágenes         Imagenes de productos
+Next.js 15 (App Router, TypeScript, Tailwind v4) desplegado en Vercel
+  Server Components → consultan Postgres directo (cache de datos 1 h)
+  /                 → catálogo SSR: búsqueda, categorías, orden y paginación en la URL
+  /p/[id]           → detalle SSR por producto con metadata OG y gráfica de histórico
+Supabase      → Postgres         Base de datos (solo lectura)
+Cloudflare R2 → imágenes         Imágenes de productos (via next/image)
 ```
 
 ## Desarrollo local
@@ -27,23 +29,22 @@ Cloudflare R2 → imágenes         Imagenes de productos
 ```bash
 npm install
 cp .env.example .env   # completar variables
-npm start              # http://localhost:4000
+npm run dev            # http://localhost:3000
 ```
 
 | Variable | Descripción |
 |---|---|
-| `SUPABASE_DB_URL` | Connection string de Postgres |
+| `SUPABASE_DB_URL` | Connection string de Postgres (pooler, apto para serverless) |
 | `R2_PUBLIC_BASE` | Base pública del bucket de imágenes, sin slash final |
-| `PORT` | Opcional, por defecto `4000` |
 
 
 ## Estructura
 
 ```
-api/index.js     # entrypoint de Vercel (exporta la app Express)
-server.js        # entrypoint de desarrollo local
-lib/             # cliente de DB, queries y rutas de la API
-public/          # frontend: index.html, app.js (grid, filtros, gráfica), styles.css
+app/             # rutas: page.tsx (catálogo), p/[id] (detalle), sitemap, robots
+components/      # Header, SearchBox, CategoryTree, ProductCard, PriceChart, …
+lib/             # db (postgres.js), queries, cache (1 h), format, types
+public/assets/   # logo, favicon, textura del header
 ```
 
 ## Nota sobre el histórico
