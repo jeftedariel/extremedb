@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { cachedList, cachedTree } from "@/lib/cache";
 import type { CategoryNode } from "@/lib/types";
+import CatalogStateSaver from "@/components/CatalogStateSaver";
 import CategoryTree from "@/components/CategoryTree";
 import ProductCard from "@/components/ProductCard";
 import ResultBar from "@/components/ResultBar";
@@ -34,6 +36,9 @@ export default async function Home({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[240px_1fr]">
+      <Suspense>
+        <CatalogStateSaver />
+      </Suspense>
       <aside className="border-b border-line bg-white px-[14px] py-[18px] max-md:max-h-[45vh] max-md:overflow-y-auto md:sticky md:top-[61px] md:h-[calc(100vh-61px)] md:overflow-y-auto md:border-b-0 md:border-r">
         <h3 className="mx-2 mb-3 mt-1 text-[13px] font-bold uppercase tracking-[1px] text-ink">
           Categorías
