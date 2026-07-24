@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cachedDetail } from "@/lib/cache";
 import { discountPct, fmtDate, money } from "@/lib/format";
+import BackLink from "@/components/BackLink";
 import PriceChart from "@/components/PriceChart";
 import ProductImage from "@/components/ProductImage";
 
@@ -35,9 +35,7 @@ export default async function ProductPage(props: Params) {
 
   return (
     <div className="mx-auto w-full max-w-[920px] px-4 pb-14 pt-6">
-      <Link href="/" className="text-[13px] font-semibold text-accent hover:underline">
-        ‹ Volver al catálogo
-      </Link>
+      <BackLink />
 
       <div className="mt-4 overflow-hidden rounded-xl border border-line bg-white">
         <div className="grid grid-cols-1 gap-[22px] p-[22px] md:grid-cols-[280px_1fr]">
@@ -88,6 +86,14 @@ export default async function ProductPage(props: Params) {
                 SKU: {p.sku}
               </div>
             )}
+            <a
+              href={p.permalink}
+              target="_blank"
+              rel="noopener"
+              className="mt-4 inline-block rounded-full bg-accent px-5 py-[10px] text-[13px] font-semibold uppercase tracking-[0.3px] text-white transition-colors hover:bg-accent-dark"
+            >
+              Ver en ExtremeTech ↗
+            </a>
           </div>
         </div>
 
@@ -121,16 +127,6 @@ export default async function ProductPage(props: Params) {
           </div>
         </div>
 
-        <div className="px-[22px] pb-[22px]">
-          <a
-            href={p.permalink}
-            target="_blank"
-            rel="noopener"
-            className="text-[13px] font-semibold text-accent hover:underline"
-          >
-            Ver en la tienda oficial ↗
-          </a>
-        </div>
       </div>
     </div>
   );
