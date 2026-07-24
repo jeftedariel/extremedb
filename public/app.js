@@ -35,8 +35,8 @@ const el = (tag, cls, html) => {
 };
 const esc = (s) =>
   String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-// Las imágenes están tras Cloudflare; se sirven por el proxy del servidor.
-const imgUrl = (src) => (src ? "/img?u=" + encodeURIComponent(src) : "");
+// La API ya devuelve URLs absolutas de R2 (o null → placeholder por onerror).
+const imgUrl = (src) => src || "";
 
 /* ---------- data ---------- */
 async function loadCategories() {

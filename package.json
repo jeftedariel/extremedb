@@ -5,11 +5,10 @@
   "type": "module",
   "description": "Demo web para explorar el catálogo y el histórico de precios de ExtremeTech (lee la DB del tracker)",
   "scripts": {
-    "start": "node server.js"
+    "start": "node --env-file-if-exists=.env server.js"
   },
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
     "express": "^4.21.2",
-    "playwright-core": "^1.61.1"
+    "postgres": "^3.4.9"
   }
 }
