@@ -1,15 +1,29 @@
 {
   "name": "extremetech-viewer",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "description": "Demo web para explorar el catálogo y el histórico de precios de ExtremeTech (lee la DB del tracker)",
+  "license": "MIT",
+  "description": "ExtremeDatabase — rastreador de precios del catálogo de ExtremeTech CR",
   "scripts": {
-    "start": "node --env-file-if-exists=.env server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "engines": {
+    "node": ">=22"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "postgres": "^3.4.9"
+    "next": "^15.4.0",
+    "postgres": "^3.4.9",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
-  "license": "MIT"
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.7.3"
+  }
 }
