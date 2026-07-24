@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ExtremeTech · Rastreador de Precios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="assets/favicon.png" />
+  </head>
+  <body>
+    <div class="infobar">Llámanos: 4350-2222 | ventas@extremetechcr.com</div>
+    <header class="topbar">
+      <div class="brand" onclick="location.hash=''">
+        <img src="assets/logo.png" alt="ExtremeTech" />
+        <span class="brand-sub">Price Tracker</span>
+      </div>
+      <div class="search">
+        <input
+          id="search"
+          type="search"
+          placeholder="Buscar producto, marca o SKU…"
+          autocomplete="off"
+        />
+      </div>
+      <div class="sortbox">
+        <select id="sort">
+          <option value="name">Nombre (A–Z)</option>
+          <option value="price_asc">Precio: menor a mayor</option>
+          <option value="price_desc">Precio: mayor a menor</option>
+          <option value="discount">Mayor descuento</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <h3>Categorías</h3>
+        <ul id="categories" class="cats"></ul>
+      </aside>
+
+      <main class="content">
+        <div id="resultbar" class="resultbar"></div>
+        <section id="grid" class="grid"></section>
+        <div id="pager" class="pager"></div>
+      </main>
+    </div>
+
+    <!-- Detalle -->
+    <div id="overlay" class="overlay hidden" onclick="if(event.target===this)closeDetail()">
+      <div class="detail" id="detail"></div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
