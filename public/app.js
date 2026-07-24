@@ -423,6 +423,7 @@ function handleHash() {
 window.addEventListener("hashchange", handleHash);
 
 /* ---------- init ---------- */
+$("#sort").value = state.sort; // mantiene el select alineado con el estado inicial
 loadCategories();
 loadProducts();
 handleHash();
