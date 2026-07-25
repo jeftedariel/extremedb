@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Suspense } from "react";
+import { LOGO_SRC } from "@/lib/assets";
 import SearchBox from "./SearchBox";
 import SortSelect from "./SortSelect";
 
@@ -11,10 +12,7 @@ export default function Header() {
       style={{ backgroundImage: "url(/assets/header-bg.webp)" }}
     >
       <Link href="/" className="order-1 flex items-center gap-[10px] whitespace-nowrap">
-        <Image src="/assets/logo.png" alt="ExtremeTech" width={140} height={40} className="h-10 w-auto" priority />
-        <span className="text-[11px] font-semibold uppercase tracking-[1px] text-white/75">
-          Price Tracker
-        </span>
+        <Image src={LOGO_SRC} alt="ExtremeTech" width={140} height={40} className="h-10 w-auto" priority />
       </Link>
 
       <Suspense>
