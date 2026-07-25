@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import Header from "@/components/Header";
+import { FAVICON_SRC } from "@/lib/assets";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   },
   description:
     "Explora el catálogo de ExtremeTech CR con histórico de precios, gráficas y estadísticas por producto.",
-  icons: { icon: "/assets/favicon.png" },
+  icons: { icon: FAVICON_SRC },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
