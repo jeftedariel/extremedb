@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { CategoryNode } from "@/lib/types";
+import { categoryIconSrc } from "@/lib/category-icons";
 import { buildHref } from "@/lib/format";
 
 interface Props {
@@ -61,6 +62,7 @@ export default function CategoryTree({ tree, activeCategory, currentParams }: Pr
     const active = node ? activeCategory === slug : !activeCategory;
     const hasKids = !!node && node.children.length > 0;
     const open = !!node && isOpen(slug);
+    const icon = node ? categoryIconSrc(slug) : null;
 
     return (
       <div
@@ -86,6 +88,20 @@ export default function CategoryTree({ tree, activeCategory, currentParams }: Pr
           </button>
         ) : (
           <span className="w-[18px] flex-none" />
+        )}
+        {icon && (
+          // Los iconos del sitio vienen en colores mixtos (negro/rojo/blanco);
+          // brightness-0 los unifica en negro e invert los pasa a blanco al estar activos.
+          <img
+            src={icon}
+            alt=""
+            width={16}
+            height={16}
+            loading="lazy"
+            className={`h-4 w-4 flex-none object-contain brightness-0 ${
+              active ? "invert" : "opacity-65"
+            }`}
+          />
         )}
         <span className="min-w-0 flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
           {node ? node.name : "Todas"}

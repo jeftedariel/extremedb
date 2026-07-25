@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { FaExternalLinkAlt } from "react-icons/fa";
 import { cachedDetail } from "@/lib/cache";
 import { discountPct, fmtDate, money } from "@/lib/format";
 import BackLink from "@/components/BackLink";
@@ -102,9 +103,10 @@ export default async function ProductPage(props: Params) {
               href={p.permalink}
               target="_blank"
               rel="noopener"
-              className="mt-4 block rounded-full bg-accent px-5 py-[11px] text-center text-[13px] font-semibold uppercase tracking-[0.3px] text-white transition-colors hover:bg-accent-dark md:inline-block md:py-[10px]"
+              className="mt-4 flex items-center justify-center gap-2 rounded-full bg-accent px-5 py-[11px] text-center text-[13px] font-semibold uppercase tracking-[0.3px] text-white transition-colors hover:bg-accent-dark md:inline-flex md:py-[10px]"
             >
-              Ver en ExtremeTech ↗
+              Ver en ExtremeTech
+              <FaExternalLinkAlt size={12} aria-hidden="true" />
             </a>
           </div>
         </div>
