@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { cachedList, cachedTree } from "@/lib/cache";
 import type { CategoryNode } from "@/lib/types";
 import CatalogStateSaver from "@/components/CatalogStateSaver";
-import CategoryTree from "@/components/CategoryTree";
+import Sidebar from "@/components/Sidebar";
 import ProductCard from "@/components/ProductCard";
 import ResultBar from "@/components/ResultBar";
 import Pager from "@/components/Pager";
@@ -33,23 +33,24 @@ export default async function Home({
     cachedTree(),
     cachedList({ search, category, sort, page, limit: 24 }),
   ]);
+  const categoryName = category ? findName(category, tree) ?? category : undefined;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[240px_1fr]">
       <Suspense>
         <CatalogStateSaver />
       </Suspense>
-      <aside className="border-b border-line bg-white px-[14px] py-[18px] max-md:max-h-[45vh] max-md:overflow-y-auto md:sticky md:top-[61px] md:h-[calc(100vh-61px)] md:overflow-y-auto md:border-b-0 md:border-r">
-        <h3 className="mx-2 mb-3 mt-1 text-[13px] font-bold uppercase tracking-[1px] text-ink">
-          Categorías
-        </h3>
-        <CategoryTree tree={tree} activeCategory={category} currentParams={currentParams} />
-      </aside>
+      <Sidebar
+        tree={tree}
+        activeCategory={category}
+        activeCategoryName={categoryName}
+        currentParams={currentParams}
+      />
 
-      <main className="min-w-0 px-[22px] pb-[60px] pt-[18px]">
+      <main className="min-w-0 px-3 pb-[60px] pt-3 md:px-[22px] md:pt-[18px]">
         <ResultBar
           total={data.total}
-          categoryName={category ? findName(category, tree) ?? category : undefined}
+          categoryName={categoryName}
           search={search || undefined}
           currentParams={currentParams}
         />
@@ -58,7 +59,7 @@ export default async function Home({
             Sin resultados. Prueba otra búsqueda o categoría.
           </div>
         ) : (
-          <section className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+          <section className="grid grid-cols-2 gap-2 md:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] md:gap-4">
             {data.items.map((p) => (
               <ProductCard key={p.id} product={p} showUpdated={sort === "updated"} />
             ))}

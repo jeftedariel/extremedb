@@ -7,10 +7,10 @@ import SortSelect from "./SortSelect";
 export default function Header() {
   return (
     <header
-      className="sticky top-0 z-20 flex items-center gap-5 px-[22px] py-[10px] text-white bg-header bg-cover bg-center"
+      className="z-20 flex flex-wrap items-center gap-x-5 gap-y-[10px] px-4 py-[10px] text-white bg-header bg-cover bg-center md:sticky md:top-0 md:px-[22px]"
       style={{ backgroundImage: "url(/assets/header-bg.webp)" }}
     >
-      <Link href="/" className="flex items-center gap-[10px] whitespace-nowrap">
+      <Link href="/" className="order-1 flex items-center gap-[10px] whitespace-nowrap">
         <Image src="/assets/logo.png" alt="ExtremeTech" width={140} height={40} className="h-10 w-auto" priority />
         <span className="text-[11px] font-semibold uppercase tracking-[1px] text-white/75">
           Price Tracker
@@ -24,7 +24,7 @@ export default function Header() {
         <SortSelect />
       </Suspense>
 
-      <nav className="flex items-center gap-[14px]">
+      <nav className="order-2 ml-auto flex items-center gap-[14px] md:order-4 md:ml-0">
         <a
           href="https://github.com/jeftedariel/extremedb"
           target="_blank"

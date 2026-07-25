@@ -21,6 +21,10 @@ export interface Product {
   currency: string;
   categories: CategoryRef[];
   updatedAt: string | null;
+  /** Última vez que el scraper lo vio en el catálogo de la tienda. */
+  lastSeen: string | null;
+  /** true si lleva demasiado sin aparecer en el catálogo (≠ sin stock: ya no está listado). */
+  delisted: boolean;
 }
 
 export interface HistoryPoint {
