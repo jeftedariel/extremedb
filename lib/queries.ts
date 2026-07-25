@@ -23,9 +23,21 @@ const toIso = (v: unknown): string | null =>
 
 type Row = Record<string, unknown>;
 
+/**
+ * Un producto se considera DESCATALOGADO si el scraper (que recorre el catálogo completo
+ * varias veces al día) lleva más de este umbral sin verlo. Distinto de "sin stock":
+ * sin stock sigue listado en la tienda; descatalogado ya no aparece en ella.
+ */
+const DELISTED_AFTER_MS = 3 * 24 * 60 * 60 * 1000; // 3 días
+
 /** Mapea una fila de producto (products + latest_price) a la forma del frontend. */
 function mapProduct(row: Row): Product {
+  const lastSeen = toIso(row.last_seen);
+  const delisted =
+    lastSeen != null && Date.now() - new Date(lastSeen).getTime() > DELISTED_AFTER_MS;
   return {
+    lastSeen,
+    delisted,
     id: row.id as number,
     name: row.name as string,
     slug: row.slug as string,
@@ -126,7 +138,7 @@ export async function getCategoryTree(): Promise<CategoryNode[]> {
 
 const PRODUCT_COLS_SQL = `
   p.id, p.name, p.slug, p.brand, p.sku, p.permalink, p.categories,
-  p.r2_image, p.r2_thumb,
+  p.r2_image, p.r2_thumb, p.last_seen,
   lp.price, lp.regular_price, lp.on_sale, lp.in_stock, lp.currency, lp.captured_at
 `;
 
