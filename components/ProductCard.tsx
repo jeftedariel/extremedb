@@ -44,10 +44,19 @@ export default function ProductCard({ product: p, showUpdated }: Props) {
               </span>
             </>
           )}
-          {!p.inStock && (
-            <span className="rounded-[3px] bg-[#f0f0f0] px-[6px] py-[3px] text-[10px] font-semibold uppercase tracking-[0.3px] text-muted md:px-[9px] md:py-1 md:text-[11px]">
-              Agotado
+          {p.delisted ? (
+            <span
+              className="rounded-[3px] bg-ink-2 px-[6px] py-[3px] text-[10px] font-semibold uppercase tracking-[0.3px] text-white md:px-[9px] md:py-1 md:text-[11px]"
+              title={`Ya no aparece en el catálogo de la tienda (visto por última vez: ${fmtDate(p.lastSeen)})`}
+            >
+              Descatalogado
             </span>
+          ) : (
+            !p.inStock && (
+              <span className="rounded-[3px] bg-[#f0f0f0] px-[6px] py-[3px] text-[10px] font-semibold uppercase tracking-[0.3px] text-muted md:px-[9px] md:py-1 md:text-[11px]">
+                Agotado
+              </span>
+            )
           )}
         </div>
         {showUpdated && p.updatedAt && (

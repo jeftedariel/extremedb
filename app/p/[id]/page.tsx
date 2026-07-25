@@ -61,7 +61,11 @@ export default async function ProductPage(props: Params) {
                   </span>
                 </>
               )}
-              {p.inStock ? (
+              {p.delisted ? (
+                <span className="rounded-[3px] bg-ink-2 px-[9px] py-1 text-[11px] font-semibold uppercase text-white">
+                  Descatalogado
+                </span>
+              ) : p.inStock ? (
                 <span className="rounded-[3px] bg-green-ok/12 px-[9px] py-1 text-[11px] font-semibold uppercase text-green-ok">
                   En stock
                 </span>
@@ -71,6 +75,12 @@ export default async function ProductPage(props: Params) {
                 </span>
               )}
             </div>
+            {p.delisted && (
+              <div className="mt-2 rounded-lg border border-line bg-soft px-3 py-2 text-xs text-ink-2 max-md:text-center">
+                Este producto ya no aparece en el catálogo de ExtremeTech — visto por última
+                vez el {fmtDate(p.lastSeen)}. Su histórico se conserva aquí.
+              </div>
+            )}
             {p.categories.length > 0 && (
               <div className="my-[10px] flex flex-wrap gap-[6px] max-md:justify-center">
                 {p.categories.map((c) => (
