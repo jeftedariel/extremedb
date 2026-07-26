@@ -8,3 +8,5 @@ data/*.db-shm
 .env.local
 .vercel/
 data/
+.next/
+tsconfig.tsbuildinfo
