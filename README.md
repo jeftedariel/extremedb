@@ -36,6 +36,22 @@ npm run dev            # http://localhost:3000
 |---|---|
 | `SUPABASE_DB_URL` | Connection string de Postgres (pooler, apto para serverless) |
 | `R2_PUBLIC_BASE` | Base pública del bucket de imágenes, sin slash final |
+| `REVALIDATE_SECRET` | Secret del endpoint `POST /api/revalidate` (invalidación de cache) |
+| `API_TOKENS` | *(opcional)* Tokens del API que saltan el rate limit, separados por coma |
+| `API_RATE_LIMIT` | *(opcional)* Requests/minuto por IP sin token (default `60`) |
+
+
+## API pública
+
+API REST de solo lectura en `/api/v1` (JSON, CORS abierto). No requiere
+autenticación: sin token hay un límite de 60 req/min por IP;
+con un token de `API_TOKENS` no hay límite.
+
+| Endpoint | Descripción |
+|---|---|
+| `GET /api/v1/products` | Listado. Parámetros: `search`, `category` (slug), `sort` (`updated`\|`name`\|`price`\|`discount`\|`activity`), `dir` (`asc`\|`desc`), `page`, `limit` (máx. 100) |
+| `GET /api/v1/products/:id` | Detalle: producto + histórico de precios + estadísticas |
+| `GET /api/v1/categories` | Árbol de categorías con conteo de productos |
 
 
 ## Estructura
@@ -49,9 +65,11 @@ public/assets/   # logo, favicon, textura del header
 
 ## Nota sobre el histórico
 
-La gráfica y las estadísticas se enriquecen con cada corrida del tracker: solo se guarda
+La gráfica y las estadísticas incrementan con cada run del tracker: solo se guarda
 un punto nuevo cuando el precio o el stock cambian. La recolección en producción comenzó
 el **24 de julio de 2026**, los datos existen a partir de esa fecha.
+
+Nota: Se incluyeron datos legacy scrapeados desde Wayback Machine de un periodo de 2016 a 2025.
 
 ## Aviso
 
