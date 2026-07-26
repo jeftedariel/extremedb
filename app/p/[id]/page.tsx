@@ -138,11 +138,7 @@ export default async function ProductPage(props: Params) {
 
         <div className="px-4 pb-[22px] pt-[18px] md:px-[22px]">
           <h2 className="mb-[6px] text-sm font-bold text-ink">Histórico de precio</h2>
-          <div className="overflow-x-auto">
-            <div className="min-w-[640px]">
-              <PriceChart history={history} />
-            </div>
-          </div>
+          <PriceChart history={history} />
           <div className="mt-2 text-xs text-muted">
             {history.length <= 1
               ? "Solo hay un registro por ahora — el historial se irá llenando con cada corrida del tracker."
