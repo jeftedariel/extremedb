@@ -10,7 +10,16 @@ import { getCategoryTree, getProductDetail, getProductIds, listProducts } from "
  */
 const HOUR = 3600;
 
-export const cachedTree = unstable_cache(getCategoryTree, ["cat-tree"], { revalidate: HOUR });
-export const cachedList = unstable_cache(listProducts, ["products-list"], { revalidate: HOUR });
-export const cachedDetail = unstable_cache(getProductDetail, ["product-detail"], { revalidate: HOUR });
-export const cachedProductIds = unstable_cache(getProductIds, ["product-ids"], { revalidate: HOUR });
+// Versión de las keys: el Data Cache de Vercel SOBREVIVE a los redeploys, así que tras
+// una migración de datos (p.ej. la normalización de categorías) hay que subir la versión
+// para forzar entradas frescas de inmediato — o purgarlo en Vercel → Settings → Data Cache.
+const V = "v2";
+
+// Tag común: permite invalidar TODO el catálogo al instante con revalidateTag("catalog")
+// (ver app/api/revalidate/route.ts) sin esperar el TTL ni redeployar.
+const OPTS = { revalidate: HOUR, tags: ["catalog"] };
+
+export const cachedTree = unstable_cache(getCategoryTree, ["cat-tree", V], OPTS);
+export const cachedList = unstable_cache(listProducts, ["products-list", V], OPTS);
+export const cachedDetail = unstable_cache(getProductDetail, ["product-detail", V], OPTS);
+export const cachedProductIds = unstable_cache(getProductIds, ["product-ids", V], OPTS);
