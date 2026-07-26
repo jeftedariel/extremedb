@@ -66,6 +66,8 @@ export interface ListParams {
   search: string;
   category: string;
   sort: string;
+  /** "asc" | "desc" | "" (vacío = dirección natural del criterio). */
+  dir: string;
   page: number;
   limit: number;
 }

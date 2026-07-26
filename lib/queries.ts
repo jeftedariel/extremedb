@@ -143,8 +143,26 @@ const PRODUCT_COLS_SQL = `
   lp.price, lp.regular_price, lp.on_sale, lp.in_stock, lp.currency, lp.captured_at
 `;
 
+/** Dirección natural de cada criterio de orden (cuando `dir` viene vacío). */
+export const DEFAULT_DIR: Record<string, "asc" | "desc"> = {
+  updated: "desc",
+  activity: "desc",
+  name: "asc",
+  price: "asc",
+  discount: "desc",
+};
+
+/** Normaliza sort/dir, aceptando los valores legacy (price_asc / price_desc). */
+function normalizeSort(sort: string, dir: string): { key: string; dir: "asc" | "desc" } {
+  if (sort === "price_asc") return { key: "price", dir: "asc" };
+  if (sort === "price_desc") return { key: "price", dir: "desc" };
+  const key = sort in DEFAULT_DIR ? sort : "updated";
+  const d = dir === "asc" || dir === "desc" ? dir : DEFAULT_DIR[key];
+  return { key, dir: d };
+}
+
 /** Listado con búsqueda, filtro por categoría, orden y paginación. */
-export async function listProducts({ search, category, sort, page, limit }: ListParams): Promise<ListResult> {
+export async function listProducts({ search, category, sort, dir, page, limit }: ListParams): Promise<ListResult> {
   const db = sql();
 
   const conds = [];
@@ -160,25 +178,27 @@ export async function listProducts({ search, category, sort, page, limit }: List
   }
   const whereSql = conds.length ? conds.reduce((a, b) => db`${a} AND ${b}`) : db`TRUE`;
 
+  const norm = normalizeSort(sort, dir);
+  const d = norm.dir === "asc" ? db`ASC` : db`DESC`;
+
   // p.id como desempate estable: muchos productos comparten captured_at (snapshot inicial)
   // y sin él la paginación puede duplicar/saltar items entre páginas.
   const ORDER_BY: Record<string, ReturnType<ReturnType<typeof sql>>> = {
-    name: db`lower(p.name) ASC, p.id ASC`,
-    price_asc: db`lp.price ASC NULLS LAST, p.id ASC`,
-    price_desc: db`lp.price DESC NULLS LAST, p.id ASC`,
-    discount: db`(lp.regular_price - lp.price) DESC NULLS LAST, p.id ASC`,
-    updated: db`lp.captured_at DESC NULLS LAST, p.id DESC`,
-    activity: db`hc.n DESC NULLS LAST, p.id DESC`,
+    name: db`lower(p.name) ${d}, p.id ASC`,
+    price: db`lp.price ${d} NULLS LAST, p.id ASC`,
+    discount: db`(lp.regular_price - lp.price) ${d} NULLS LAST, p.id ASC`,
+    updated: db`lp.captured_at ${d} NULLS LAST, p.id DESC`,
+    activity: db`hc.n ${d} NULLS LAST, p.id DESC`,
   };
-  const orderSql = ORDER_BY[sort] || ORDER_BY.updated;
+  const orderSql = ORDER_BY[norm.key];
   const offset = (page - 1) * limit;
 
-  // "Mayor historial": ordena por nº de puntos registrados (join solo cuando se usa).
+  // "Actividad registrada": ordena por nº de puntos (join solo cuando se usa).
   const activityJoin =
-    sort === "activity"
+    norm.key === "activity"
       ? db`LEFT JOIN (SELECT product_id, COUNT(*)::int AS n FROM price_history GROUP BY product_id) hc ON hc.product_id = p.id`
       : db``;
-  const activityCol = sort === "activity" ? db`, COALESCE(hc.n, 0) AS history_points` : db``;
+  const activityCol = norm.key === "activity" ? db`, COALESCE(hc.n, 0) AS history_points` : db``;
 
   const [{ n: total }] = await db`
     SELECT COUNT(*)::int AS n
