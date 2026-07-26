@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useTransition } from "react";
 
-/** Buscador con debounce 250ms; escribe `search` en la URL (resetea page). */
+/** Buscador con debounce; escribe `search` en la URL (resetea page). */
 export default function SearchBox() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -13,10 +13,13 @@ export default function SearchBox() {
 
   const current = searchParams.get("search") ?? "";
 
-  // Si la URL cambia por navegación externa (chip ✕, logo), refleja el valor.
+  // Sincroniza el input SOLO ante navegación externa (chip ✕, logo, back) y NUNCA
+  // mientras el usuario escribe: si el input tiene el foco, lo que hay tecleado manda
+  // (sobrescribirlo a mitad de escritura cortaba el texto del usuario).
   useEffect(() => {
-    if (inputRef.current && inputRef.current.value.trim() !== current) {
-      inputRef.current.value = current;
+    const el = inputRef.current;
+    if (el && document.activeElement !== el && el.value.trim() !== current) {
+      el.value = current;
     }
   }, [current]);
 
@@ -31,7 +34,7 @@ export default function SearchBox() {
       startTransition(() => {
         router.replace(params.size ? `/?${params}` : "/", { scroll: false });
       });
-    }, 250);
+    }, 450);
   };
 
   return (
