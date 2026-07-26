@@ -64,6 +64,11 @@ export default function ProductCard({ product: p, showUpdated }: Props) {
             Actualizado: {fmtDate(p.updatedAt)}
           </div>
         )}
+        {p.historyPoints != null && (
+          <div className="mt-1 text-[10px] font-semibold text-ink-2 md:text-[11px]">
+            📈 {p.historyPoints} {p.historyPoints === 1 ? "punto" : "puntos"} de historial
+          </div>
+        )}
       </div>
     </Link>
   );

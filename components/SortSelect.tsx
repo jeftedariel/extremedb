@@ -5,6 +5,7 @@ import { useTransition } from "react";
 
 const OPTIONS = [
   { value: "updated", label: "Actualizados recientemente" },
+  { value: "activity", label: "Mayor historial" },
   { value: "name", label: "Nombre (A–Z)" },
   { value: "price_asc", label: "Precio: menor a mayor" },
   { value: "price_desc", label: "Precio: mayor a menor" },
