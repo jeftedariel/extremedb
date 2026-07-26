@@ -53,6 +53,7 @@ function mapProduct(row: Row): Product {
     currency: (row.currency as string) || "CRC",
     categories: (row.categories as CategoryRef[]) || [],
     updatedAt: toIso(row.captured_at),
+    historyPoints: typeof row.history_points === "number" ? row.history_points : undefined,
   };
 }
 
@@ -167,9 +168,17 @@ export async function listProducts({ search, category, sort, page, limit }: List
     price_desc: db`lp.price DESC NULLS LAST, p.id ASC`,
     discount: db`(lp.regular_price - lp.price) DESC NULLS LAST, p.id ASC`,
     updated: db`lp.captured_at DESC NULLS LAST, p.id DESC`,
+    activity: db`hc.n DESC NULLS LAST, p.id DESC`,
   };
   const orderSql = ORDER_BY[sort] || ORDER_BY.updated;
   const offset = (page - 1) * limit;
+
+  // "Mayor historial": ordena por nº de puntos registrados (join solo cuando se usa).
+  const activityJoin =
+    sort === "activity"
+      ? db`LEFT JOIN (SELECT product_id, COUNT(*)::int AS n FROM price_history GROUP BY product_id) hc ON hc.product_id = p.id`
+      : db``;
+  const activityCol = sort === "activity" ? db`, COALESCE(hc.n, 0) AS history_points` : db``;
 
   const [{ n: total }] = await db`
     SELECT COUNT(*)::int AS n
@@ -179,9 +188,10 @@ export async function listProducts({ search, category, sort, page, limit }: List
   `;
 
   const rows = await db`
-    SELECT ${db.unsafe(PRODUCT_COLS_SQL)}
+    SELECT ${db.unsafe(PRODUCT_COLS_SQL)} ${activityCol}
     FROM products p
     LEFT JOIN latest_price lp ON lp.product_id = p.id
+    ${activityJoin}
     WHERE ${whereSql}
     ORDER BY ${orderSql}
     LIMIT ${limit} OFFSET ${offset}
