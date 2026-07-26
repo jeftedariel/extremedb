@@ -25,6 +25,8 @@ export interface Product {
   lastSeen: string | null;
   /** true si lleva demasiado sin aparecer en el catálogo (≠ sin stock: ya no está listado). */
   delisted: boolean;
+  /** Nº de puntos de histórico — solo presente cuando se ordena por "mayor historial". */
+  historyPoints?: number;
 }
 
 export interface HistoryPoint {
@@ -64,6 +66,8 @@ export interface ListParams {
   search: string;
   category: string;
   sort: string;
+  /** "asc" | "desc" | "" (vacío = dirección natural del criterio). */
+  dir: string;
   page: number;
   limit: number;
 }

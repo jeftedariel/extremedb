@@ -35,7 +35,7 @@ export function buildHref(
   const params = new URLSearchParams();
   const merged = { ...current, ...overrides };
   if (!("page" in overrides)) delete merged.page; // cambiar cualquier filtro resetea la página
-  for (const key of ["search", "category", "sort", "page"]) {
+  for (const key of ["search", "category", "sort", "dir", "page"]) {
     const v = merged[key];
     if (v) params.set(key, v);
   }

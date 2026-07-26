@@ -26,12 +26,13 @@ export default async function Home({
   const search = (sp.search ?? "").trim();
   const category = sp.category ?? "";
   const sort = sp.sort ?? "updated";
+  const dir = sp.dir ?? "";
   const page = Math.max(1, parseInt(sp.page ?? "1") || 1);
-  const currentParams = { search, category, sort: sp.sort, page: sp.page };
+  const currentParams = { search, category, sort: sp.sort, dir: sp.dir, page: sp.page };
 
   const [tree, data] = await Promise.all([
     cachedTree(),
-    cachedList({ search, category, sort, page, limit: 24 }),
+    cachedList({ search, category, sort, dir, page, limit: 24 }),
   ]);
   const categoryName = category ? findName(category, tree) ?? category : undefined;
 
