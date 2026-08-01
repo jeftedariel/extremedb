@@ -27,8 +27,11 @@ export const GET = withPublicApi(async (req: NextRequest) => {
         params: {
           search: "texto a buscar en nombre, SKU y marca (alias: q)",
           category: "slug de categoría (ver /categories)",
-          sort: "updated | name | price | discount | activity (default: updated)",
+          slug: "lookup exacto por slug de producto (resuelve URLs /producto/<slug>/ de la tienda)",
+          sort: "updated | added | name | price | discount | activity (default: updated). 'added' ordena por fecha de alta en el catálogo, del más viejo al más nuevo.",
           dir: "asc | desc (default: dirección natural del criterio)",
+          since: "fecha de alta mínima, inclusive (YYYY-MM-DD o ISO 8601)",
+          until: "fecha de alta máxima (YYYY-MM-DD incluye ese día completo)",
           page: "página, desde 1 (default: 1)",
           limit: "items por página, máx. 100 (default: 24)",
         },

@@ -36,6 +36,7 @@ function mapProduct(row: Row): Product {
   const delisted =
     lastSeen != null && Date.now() - new Date(lastSeen).getTime() > DELISTED_AFTER_MS;
   return {
+    firstSeen: toIso(row.first_seen),
     lastSeen,
     delisted,
     id: row.id as number,
@@ -139,13 +140,14 @@ export async function getCategoryTree(): Promise<CategoryNode[]> {
 
 const PRODUCT_COLS_SQL = `
   p.id, p.name, p.slug, p.brand, p.sku, p.permalink, p.categories,
-  p.r2_image, p.r2_thumb, p.last_seen,
+  p.r2_image, p.r2_thumb, p.first_seen, p.last_seen,
   lp.price, lp.regular_price, lp.on_sale, lp.in_stock, lp.currency, lp.captured_at
 `;
 
 /** Dirección natural de cada criterio de orden (cuando `dir` viene vacío). */
 export const DEFAULT_DIR: Record<string, "asc" | "desc"> = {
   updated: "desc",
+  added: "asc", // fecha de alta: lo natural es recorrer del más viejo al más nuevo
   activity: "desc",
   name: "asc",
   price: "asc",
@@ -162,13 +164,28 @@ function normalizeSort(sort: string, dir: string): { key: string; dir: "asc" | "
 }
 
 /** Listado con búsqueda, filtro por categoría, orden y paginación. */
-export async function listProducts({ search, category, sort, dir, page, limit }: ListParams): Promise<ListResult> {
+export async function listProducts({ search, category, slug, sort, dir, since, until, page, limit }: ListParams): Promise<ListResult> {
   const db = sql();
 
   const conds = [];
   if (search) {
     const q = `%${search}%`;
     conds.push(db`(p.name ILIKE ${q} OR p.sku ILIKE ${q} OR p.brand ILIKE ${q})`);
+  }
+  // Filtro por fecha de alta (first_seen). `until` sin hora incluye el día completo:
+  // "2026-07-01" filtra first_seen < 2026-07-02 en vez de <= medianoche del 1.
+  if (since) {
+    conds.push(db`p.first_seen >= ${since}`);
+  }
+  if (until) {
+    conds.push(
+      /^\d{4}-\d{2}-\d{2}$/.test(until)
+        ? db`p.first_seen < ${until}::date + 1`
+        : db`p.first_seen <= ${until}`
+    );
+  }
+  if (slug) {
+    conds.push(db`p.slug = ${slug}`);
   }
   if (category) {
     conds.push(db`EXISTS (
@@ -188,6 +205,7 @@ export async function listProducts({ search, category, sort, dir, page, limit }:
     price: db`lp.price ${d} NULLS LAST, p.id ASC`,
     discount: db`(lp.regular_price - lp.price) ${d} NULLS LAST, p.id ASC`,
     updated: db`lp.captured_at ${d} NULLS LAST, p.id DESC`,
+    added: db`p.first_seen ${d} NULLS LAST, p.id ASC`,
     activity: db`hc.n ${d} NULLS LAST, p.id DESC`,
   };
   const orderSql = ORDER_BY[norm.key];

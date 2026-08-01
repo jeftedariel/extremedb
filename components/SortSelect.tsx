@@ -5,6 +5,7 @@ import { useTransition } from "react";
 
 const OPTIONS = [
   { value: "updated", label: "Actualizados" },
+  { value: "added", label: "Fecha de alta" },
   { value: "activity", label: "Actividad registrada" },
   { value: "price", label: "Precio" },
   { value: "discount", label: "Descuento" },
@@ -14,6 +15,7 @@ const OPTIONS = [
 /** Dirección natural de cada criterio (espejo de DEFAULT_DIR en lib/queries). */
 const DEFAULT_DIR: Record<string, "asc" | "desc"> = {
   updated: "desc",
+  added: "asc", // fecha de alta: del más viejo al más nuevo (espejo de lib/queries)
   activity: "desc",
   name: "asc",
   price: "asc",
