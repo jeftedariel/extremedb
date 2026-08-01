@@ -21,6 +21,8 @@ export interface Product {
   currency: string;
   categories: CategoryRef[];
   updatedAt: string | null;
+  /** Primera vez que el scraper lo vio en el catálogo ≈ fecha de alta del producto. */
+  firstSeen: string | null;
   /** Última vez que el scraper lo vio en el catálogo de la tienda. */
   lastSeen: string | null;
   /** true si lleva demasiado sin aparecer en el catálogo (≠ sin stock: ya no está listado). */
@@ -60,14 +62,20 @@ export interface CategoryNode {
   children: CategoryNode[];
 }
 
-export type SortKey = "updated" | "name" | "price_asc" | "price_desc" | "discount";
+export type SortKey = "updated" | "added" | "name" | "price_asc" | "price_desc" | "discount";
 
 export interface ListParams {
   search: string;
   category: string;
+  /** Lookup exacto por slug (resolución de URLs de la tienda, p.ej. el bot de Discord). */
+  slug?: string;
   sort: string;
   /** "asc" | "desc" | "" (vacío = dirección natural del criterio). */
   dir: string;
+  /** Filtro por fecha de alta (first_seen): desde, inclusive. YYYY-MM-DD o ISO 8601. */
+  since?: string;
+  /** Filtro por fecha de alta (first_seen): hasta. YYYY-MM-DD incluye el día completo. */
+  until?: string;
   page: number;
   limit: number;
 }
