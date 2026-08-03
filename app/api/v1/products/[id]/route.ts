@@ -2,6 +2,9 @@ import { NextRequest } from "next/server";
 import { cachedDetail } from "@/lib/cache";
 import { apiError, apiJson, corsPreflight, withPublicApi } from "@/lib/api";
 
+// Tope de ejecución: si la DB se cuelga, fallar en 1 min en vez del default de 5.
+export const maxDuration = 60;
+
 /**
  * GET /api/v1/products/:id — detalle de un producto: datos actuales,
  * histórico completo de precio y estadísticas (mínimo/máximo/actual).

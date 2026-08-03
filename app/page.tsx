@@ -7,6 +7,9 @@ import ProductCard from "@/components/ProductCard";
 import ResultBar from "@/components/ResultBar";
 import Pager from "@/components/Pager";
 
+// Tope de ejecución: si la DB se cuelga, fallar en 1 min en vez del default de 5.
+export const maxDuration = 60;
+
 /** Nombre visible de la categoría activa (para el chip). */
 function findName(slug: string, nodes: CategoryNode[]): string | null {
   for (const n of nodes) {

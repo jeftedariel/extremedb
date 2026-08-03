@@ -4,6 +4,9 @@ import { apiError, apiJson, corsPreflight, withPublicApi } from "@/lib/api";
 
 const MAX_LIMIT = 100;
 
+// Tope de ejecución: si la DB se cuelga, fallar en 1 min en vez del default de 5.
+export const maxDuration = 60;
+
 /**
  * GET /api/v1/products — listado del catálogo con búsqueda, filtro, orden y paginación.
  * Mismos parámetros que la web: search, category, sort, dir, since, until, page, limit.
